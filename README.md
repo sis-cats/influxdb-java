@@ -23,21 +23,21 @@ BatchPoints batchPoints = BatchPoints
 				.build();
 Point point1 = Point.measurement("cpu")
 					.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-					.field("idle", 90L)
-					.field("user", 9L)
-					.field("system", 1L)
+					.addField("idle", 90L)
+					.addField("user", 9L)
+					.addField("system", 1L)
 					.build();
 Point point2 = Point.measurement("disk")
 					.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-					.field("used", 80L)
-					.field("free", 1L)
+					.addField("used", 80L)
+					.addField("free", 1L)
 					.build();
 batchPoints.point(point1);
 batchPoints.point(point2);
 influxDB.write(batchPoints);
 Query query = new Query("SELECT idle FROM cpu", dbName);
 influxDB.query(query);
-influxDB.deleteDatabase(dbName)
+influxDB.deleteDatabase(dbName);
 ```
 
 
@@ -53,21 +53,21 @@ influxDB.enableBatch(2000, 100, TimeUnit.MILLISECONDS);
 
 Point point1 = Point.measurement("cpu")
 					.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-					.field("idle", 90L)
-					.field("user", 9L)
-					.field("system", 1L)
+					.addField("idle", 90L)
+					.addField("user", 9L)
+					.addField("system", 1L)
 					.build();
 Point point2 = Point.measurement("disk")
 					.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-					.field("used", 80L)
-					.field("free", 1L)
+					.addField("used", 80L)
+					.addField("free", 1L)
 					.build();
 
 influxDB.write(dbName, "default", point1);
 influxDB.write(dbName, "default", point2);
 Query query = new Query("SELECT idle FROM cpu", dbName);
 influxDB.query(query);
-influxDB.deleteDatabase(dbName)
+influxDB.deleteDatabase(dbName);
 ```
 
 
@@ -78,7 +78,7 @@ influxDB.deleteDatabase(dbName)
 		<dependency>
 			<groupId>org.influxdb</groupId>
 			<artifactId>influxdb-java</artifactId>
-			<version>2.1</version>
+			<version>2.2</version>
 		</dependency>
 ```
 
@@ -91,16 +91,6 @@ For additional usage examples have a look at [InfluxDBTest.java](https://github.
 * Maven 3.0+
 * Docker daemon running
 
-Maven will run tests during build process using a docker image with influxdb actual image is majst01/influxdb-java.
-This docker image is pulled during the first test run which will take some time. So the first test execution will fail because the image to pull is not there.
-You can check with:
-
-```
-    $ docker images | grep majst01
-majst01/influxdb-java      latest              50256afac0c9        About an hour ago   298.7 MB
-
-```
-
 Then you can build influxdb-java with all tests with:
 
     $ mvn clean install
@@ -109,6 +99,16 @@ If you don't have Docker running locally, you can skip tests with -DskipTests fl
 
     $ mvn clean install -DskipTests=true
 
+If you have Docker running, but it is not at localhost (e.g. you are on a Mac and using `docker-machine`) you can set an optional environment variable `INFLUXDB_IP` to point to the correct IP address:
+
+    $ export INFLUXDB_IP=192.168.99.100
+    $ mvn test
+
+For convenience we provide a small shell script which starts a influxdb server locally and executes `mvn clean install` with all tests inside docker containers.
+
+```
+$ ./compile-and-test.sh
+```
 
 
 ### Publishing
